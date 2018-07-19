@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import Router from 'next/router'
 import AuthService from '../utils/AuthService'
 
@@ -13,9 +12,14 @@ class Dashboard extends React.Component {
   async componentDidMount() {
     const Auth = new AuthService();
     if(!Auth.isLoggedIn()) {
-      Router.push('/login');
+      Auth.login();
     }
     this.setState({"user": await Auth.userProfile()});
+  }
+
+  logout() {
+    const Auth = new AuthService();
+    Auth.logout();
   }
 
   render() {
@@ -25,7 +29,7 @@ class Dashboard extends React.Component {
         {this.state.user && (
           <p>Hi {this.state.user.name}!</p>
         )}
-        <Link href="logout"><button>Logout</button></Link>
+        <p><a onClick={() => this.logout()}><button>Logout</button></a></p>
       </div>
     );
   }

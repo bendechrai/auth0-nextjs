@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import Router from 'next/router'
 import AuthService from '../utils/AuthService'
 
@@ -12,11 +11,16 @@ class Index extends React.Component {
     }
   }
 
+  login() {
+    const Auth = new AuthService();
+    Auth.login();
+  }
+
   render() {
     return (
       <div>
         <h1>Auth0 and Next.js</h1>
-        <Link href="login"><button>Login</button></Link>
+        <p><a onClick={() => this.login()}><button>Login</button></a></p>
       </div>
     );
   }
