@@ -11,10 +11,8 @@ class Dashboard extends React.Component {
 
   async componentDidMount() {
     const Auth = new AuthService();
-    if(!Auth.isLoggedIn()) {
-      Auth.login();
-    }
-    this.setState({"user": await Auth.userProfile()});
+    Auth.checkSession();
+    this.setState({"user": await Auth.getUser()});
   }
 
   logout() {
