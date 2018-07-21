@@ -4,13 +4,6 @@ import AuthService from '../utils/AuthService'
 
 class Index extends React.Component {
 
-  componentDidMount() {
-    const Auth = new AuthService();
-    if(Auth.isLoggedIn()) {
-      Router.push('/dashboard');
-    }
-  }
-
   login() {
     const Auth = new AuthService();
     Auth.login();
