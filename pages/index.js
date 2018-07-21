@@ -1,5 +1,4 @@
 import React from 'react'
-import Router from 'next/router'
 import AuthService from '../utils/AuthService'
 
 class Index extends React.Component {
@@ -13,7 +12,9 @@ class Index extends React.Component {
     return (
       <div>
         <h1>Auth0 and Next.js</h1>
-        <p><a onClick={() => this.login()}><button>Login</button></a></p>
+        <p><a onClick={() => this.login()}>
+          <button>Login</button>
+        </a></p>
       </div>
     );
   }

@@ -27,7 +27,9 @@ class Dashboard extends React.Component {
         {this.state.user && (
           <p>Hi {this.state.user.name}!</p>
         )}
-        <p><a onClick={() => this.logout()}><button>Logout</button></a></p>
+        <p><a onClick={() => this.logout()}>
+          <button>Logout</button></a>
+        </p>
       </div>
     );
   }
