@@ -2,6 +2,11 @@ import Router from 'next/router'
 
 export default class AuthService {
 
+  accessToken = null;
+  idToken = null;
+  expiresAt = null;
+  user = null;
+
   constructor() {
     this.auth0 = require('auth0-js');
     this.webAuth = new this.auth0.WebAuth({
@@ -12,53 +17,59 @@ export default class AuthService {
       responseType: 'token id_token',
       scope: 'openid profile'
     });
+    this.saveTokens = this.saveTokens.bind(this);
   }
 
   login() {
     this.webAuth.authorize();
   }
 
+  saveTokens(err, authResult) {
+
+    // Error - return with log
+    if (err) {
+      if(err.error == 'login_required') this.login();
+      else return console.log(err);
+    }
+
+    // Store tokens and expiry
+    let expiresAt = JSON.stringify(
+      (authResult.expiresIn * 1000) + new Date().getTime()
+    );
+    this.accessToken = authResult.accessToken;
+    this.idToken = authResult.idToken;
+    this.expiresAt = expiresAt;
+
+    var saveUser = (function(err, user) {
+      this.user = user;
+    }).bind(this);
+    this.webAuth.client.userInfo(this.accessToken, saveUser);
+
+  }
+
   callback(hash) {
-    this.webAuth.parseHash({ hash: hash }, function(err, authResult) {
-
-      if (err) {
-        return console.log(err);
-      }
-
-      let expiresAt = JSON.stringify(
-        (authResult.expiresIn * 1000) + new Date().getTime()
-      );
-      localStorage.setItem('access_token', authResult.accessToken);
-      localStorage.setItem('id_token', authResult.idToken);
-      localStorage.setItem('expires_at', expiresAt);
-
-      Router.push('/dashboard');
-
-    });
+    this.webAuth.parseHash({ hash: hash }, this.saveTokens);
+    Router.push('/dashboard');
   }
 
-  userProfile() {
-    let webAuth = this.webAuth;
-    return new Promise(function(resolve, reject) {
-      let accessToken = localStorage.getItem('access_token');
-      webAuth.client.userInfo(accessToken, function(err, user){
-        resolve(user);
-      });
-    });
+  checkSession() {
+    this.webAuth.checkSession({}, this.saveTokens);
   }
 
-  isLoggedIn() {
-    // If there's an expiry, and it's in the future, user is logged in
-    let exp = localStorage.getItem('expires_at');
-    let now = new Date().getTime();
-    return (exp>=now);
+  getUser() {
+    var _this = this;
+    return new Promise((function(resolve, reject) {
+      (function waitForUser(){
+        if (_this.user != null) return resolve(_this.user);
+        setTimeout(waitForUser, 100);
+      })();
+    }));
   }
 
   logout() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('expires_at');
-    Router.push('/');
+    this.webAuth.logout({
+      returnTo: 'http://localhost:3000/'
+    });
   }
 
 }
