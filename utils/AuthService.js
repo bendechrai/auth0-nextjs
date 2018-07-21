@@ -26,13 +26,11 @@ export default class AuthService {
 
   saveTokens(err, authResult) {
 
-    // Error - return with log
     if (err) {
       if(err.error == 'login_required') this.login();
       else return console.log(err);
     }
 
-    // Store tokens and expiry
     let expiresAt = JSON.stringify(
       (authResult.expiresIn * 1000) + new Date().getTime()
     );
